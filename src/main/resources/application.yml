@@ -58,11 +58,11 @@ spring:
           # lower-case-service-id: true (commented out or set to false)
       routes:
         - id: admin-service
-          uri: lb://ADMIN-SERVICE # Match the uppercase service name in Eureka
+          uri: http://admin-service:8080
           predicates:
-            - Path=/api/auth/**
+            - Path=/api/auth/**, /api/admin/**
           filters:
-            - StripPrefix=1 # Remove /api from the path
+            - StripPrefix=1
         - id: timetable-service
           uri: lb://TIMETABLE-SERVICE # Match the uppercase service name in Eureka
           predicates:
