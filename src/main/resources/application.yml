@@ -54,21 +54,24 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: true # Enables Eureka-based routing
-          # lower-case-service-id: true (commented out or set to false)
+          enabled: true # Keep enabled for other Eureka-based routes
+          lower-case-service-id: true # Ensure service names are lowercase
       routes:
         - id: admin-service
-          uri: http://admin-service:8080
+          uri: http://admin-service:8080 # Use Kubernetes DNS
           predicates:
             - Path=/api/auth/**, /api/admin/**
           filters:
             - StripPrefix=1
+          metadata:
+            discovery:
+              enabled: false # Disable Eureka discovery for this route
         - id: timetable-service
-          uri: lb://TIMETABLE-SERVICE # Match the uppercase service name in Eureka
+          uri: lb://TIMETABLE-SERVICE # Use Eureka load balancer
           predicates:
             - Path=/api/timetable-service/**
           filters:
-            - StripPrefix=2 # Remove /api/timetable-service from the path
+            - StripPrefix=2
       globalcors:
         cors-configurations:
           '[/**]':
@@ -85,16 +88,14 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka/ # Use the Kubernetes service name
+      defaultZone: http://eureka-server:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
   instance:
-    leaseRenewalIntervalInSeconds: 30  # Heartbeat interval (default)
-    leaseExpirationDurationInSeconds: 90  # Time before Eureka considers the instance expired (default)
-
+    leaseRenewalIntervalInSeconds: 30
+    leaseExpirationDurationInSeconds: 90
 jwt:
   secret: X7K9p2mQ8vL5rT3yZn6bQeF4uA1wJ9kLmN5oP6sR7tU8vW9xY0z1aB2c3d4E5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6A7B8C9D
-
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
