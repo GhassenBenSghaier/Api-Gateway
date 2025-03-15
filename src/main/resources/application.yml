@@ -50,22 +50,16 @@ server:
 spring:
   application:
     name: api-gateway
+
   cloud:
     gateway:
-      discovery:
-        locator:
-          enabled: true # Keep enabled for other Eureka-based routes
-          lower-case-service-id: true # Ensure service names are lowercase
       routes:
         - id: admin-service
-          uri: http://admin-service:8080 # Use Kubernetes DNS
+          uri: lb://admin-service  # Use Eureka service ID with load balancer
           predicates:
             - Path=/api/auth/**, /api/admin/**
           filters:
             - StripPrefix=1
-          metadata:
-            discovery:
-              enabled: false # Disable Eureka discovery for this route
         - id: timetable-service
           uri: lb://TIMETABLE-SERVICE # Use Eureka load balancer
           predicates:
@@ -89,11 +83,9 @@ eureka:
   client:
     service-url:
       defaultZone: http://eureka-server:8761/eureka/
-    register-with-eureka: true
-    fetch-registry: true
   instance:
-    leaseRenewalIntervalInSeconds: 30
-    leaseExpirationDurationInSeconds: 90
+    hostname: admin-service  # Use Kubernetes service name
+    prefer-ip-address: false
 jwt:
   secret: X7K9p2mQ8vL5rT3yZn6bQeF4uA1wJ9kLmN5oP6sR7tU8vW9xY0z1aB2c3d4E5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6A7B8C9D
 logging:
