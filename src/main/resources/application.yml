@@ -1,3 +1,51 @@
+#
+#server:
+#  port: 9999
+#spring:
+#  application:
+#    name: api-gateway
+#  cloud:
+#    gateway:
+#      discovery:
+#        locator:
+#          enabled: true # Enables Eureka-based routing
+#          lower-case-service-id: true
+#      routes:
+#        - id: admin-service
+#          uri: lb://admin-service # Load-balanced URI via Eureka
+#          predicates:
+#            - Path=/api/auth/**
+#        - id: timetable-service
+#          uri: lb://timetable-service
+#          predicates:
+#            - Path=/api/timetable-service/**
+
+#      globalcors:
+#        cors-configurations:
+#          '[/**]':
+#            allowedOrigins: "http://localhost:4200"
+#            allowedMethods:
+#              - GET
+#              - POST
+#              - PUT
+#              - DELETE
+#              - OPTIONS
+#            allowedHeaders: "*"
+#            allowCredentials: true
+#            maxAge: 3600
+#eureka:
+#  client:
+#    service-url:
+#      defaultZone: http://localhost:8761/eureka/
+#  instance:
+#    leaseRenewalIntervalInSeconds: 30  # Heartbeat interval (default)
+#    leaseExpirationDurationInSeconds: 90  # Time before Eureka considers the instance expired (default)
+
+#jwt:
+#  secret: X7K9p2mQ8vL5rT3yZn6bQeF4uA1wJ9kLmN5oP6sR7tU8vW9xY0z1aB2c3d4E5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6A7B8C9D
+
+
+
 server:
   port: 9999
 spring:
@@ -11,14 +59,17 @@ spring:
           lower-case-service-id: true
       routes:
         - id: admin-service
-          uri: lb://admin-service # Load-balanced URI via Eureka
+          uri: lb://ADMIN-SERVICE # Match the uppercase service name in Eureka
           predicates:
             - Path=/api/auth/**
+          filters:
+            - StripPrefix=1 # Remove /api from the path
         - id: timetable-service
-          uri: lb://timetable-service
+          uri: lb://TIMETABLE-SERVICE # Match the uppercase service name in Eureka
           predicates:
             - Path=/api/timetable-service/**
-
+          filters:
+            - StripPrefix=2 # Remove /api/timetable-service from the path
       globalcors:
         cors-configurations:
           '[/**]':
@@ -35,11 +86,12 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: http://eureka-server:8761/eureka/ # Use the Kubernetes service name
+    register-with-eureka: true
+    fetch-registry: true
   instance:
     leaseRenewalIntervalInSeconds: 30  # Heartbeat interval (default)
     leaseExpirationDurationInSeconds: 90  # Time before Eureka considers the instance expired (default)
 
 jwt:
   secret: X7K9p2mQ8vL5rT3yZn6bQeF4uA1wJ9kLmN5oP6sR7tU8vW9xY0z1aB2c3d4E5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6A7B8C9D
-
