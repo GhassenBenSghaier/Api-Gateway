@@ -1,6 +1,9 @@
 # Use an official OpenJDK runtime as the base image
 FROM openjdk:17-jdk-slim
 
+# Install curl and dnsutils for troubleshooting
+RUN apt-get update && apt-get install -y curl dnsutils
+
 # Set the working directory inside the container
 WORKDIR /app
 
