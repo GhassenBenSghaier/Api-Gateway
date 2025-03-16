@@ -97,3 +97,4 @@ logging:
     org.springframework.cloud.gateway: DEBUG
     org.springframework.cloud.loadbalancer: DEBUG
     reactor.netty: DEBUG
+    org.springframework.web: TRACE  # Add this for detailed error traces
