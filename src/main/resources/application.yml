@@ -54,16 +54,16 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: true  # Keep enabled since other routes use Eureka
+          enabled: false  # Disable dynamic route creation from Eureka
       routes:
         - id: admin-service
-          uri: lb://ADMIN-SERVICE  # Use Eureka to resolve the service
+          uri: lb://ADMIN-SERVICE
           predicates:
-            - Path=/api/auth/**, /api/admin/**
+            - Path=/api/auth/**,/api/admin/**
           filters:
             - StripPrefix=1
         - id: timetable-service
-          uri: lb://TIMETABLE-SERVICE  # Already correct
+          uri: lb://TIMETABLE-SERVICE
           predicates:
             - Path=/api/timetable-service/**
           filters:
