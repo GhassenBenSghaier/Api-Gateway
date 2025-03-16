@@ -84,20 +84,22 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: http://10.200.1.203:8761/eureka/  # Use Eureka pod IP instead of hostname
     register-with-eureka: true
     fetch-registry: true
+    registry-fetch-interval-seconds: 5  # Fetch registry more frequently
   instance:
+    prefer-ip-address: true  # Ensure Gateway registers its IP too
     leaseRenewalIntervalInSeconds: 30
     leaseExpirationDurationInSeconds: 90
 jwt:
   secret: X7K9p2mQ8vL5rT3yZn6bQeF4uA1wJ9kLmN5oP6sR7tU8vW9xY0z1aB2c3d4E5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6A7B8C9D
 logging:
   level:
-    org.springframework.cloud.gateway: TRACE  # Increase from DEBUG to TRACE
-    org.springframework.cloud.loadbalancer: TRACE  # Increase from DEBUG to TRACE
-    reactor.netty: TRACE  # Increase from DEBUG to TRACE
+    org.springframework.cloud.gateway: TRACE
+    org.springframework.cloud.loadbalancer: TRACE
+    reactor.netty: TRACE
     org.springframework.web: TRACE
-    org.springframework.http: TRACE  # Add for HTTP request/response details
-    org.springframework.cloud.netflix.eureka: DEBUG  # Add for Eureka client details
-    com.netflix.discovery: DEBUG  # Add for Eureka discovery details
+    org.springframework.http: TRACE
+    org.springframework.cloud.netflix.eureka: DEBUG
+    com.netflix.discovery: DEBUG
