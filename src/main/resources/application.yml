@@ -54,17 +54,16 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: false  # Disable Eureka auto-route creation
+          enabled: true  # Keep enabled since other routes use Eureka
       routes:
         - id: admin-service
-          uri: http://admin-service:8080  # Use Kubernetes DNS directly
+          uri: lb://ADMIN-SERVICE  # Use Eureka to resolve the service
           predicates:
             - Path=/api/auth/**, /api/admin/**
           filters:
             - StripPrefix=1
-            - RemoveRequestHeader=Authorization  # Fix 403 Forbidden (if needed)
         - id: timetable-service
-          uri: http://timetable-service:8081  # Use Kubernetes DNS directly
+          uri: lb://TIMETABLE-SERVICE  # Already correct
           predicates:
             - Path=/api/timetable-service/**
           filters:
@@ -89,8 +88,8 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
   instance:
-    hostname: api-gateway  # Use service's own Kubernetes DNS name
-    prefer-ip-address: false
+    leaseRenewalIntervalInSeconds: 30
+    leaseExpirationDurationInSeconds: 90
 jwt:
   secret: X7K9p2mQ8vL5rT3yZn6bQeF4uA1wJ9kLmN5oP6sR7tU8vW9xY0z1aB2c3d4E5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6A7B8C9D
 logging:
