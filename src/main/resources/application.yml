@@ -94,7 +94,10 @@ jwt:
   secret: X7K9p2mQ8vL5rT3yZn6bQeF4uA1wJ9kLmN5oP6sR7tU8vW9xY0z1aB2c3d4E5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6A7B8C9D
 logging:
   level:
-    org.springframework.cloud.gateway: DEBUG
-    org.springframework.cloud.loadbalancer: DEBUG
-    reactor.netty: DEBUG
-    org.springframework.web: TRACE  # Add this for detailed error traces
+    org.springframework.cloud.gateway: TRACE  # Increase from DEBUG to TRACE
+    org.springframework.cloud.loadbalancer: TRACE  # Increase from DEBUG to TRACE
+    reactor.netty: TRACE  # Increase from DEBUG to TRACE
+    org.springframework.web: TRACE
+    org.springframework.http: TRACE  # Add for HTTP request/response details
+    org.springframework.cloud.netflix.eureka: DEBUG  # Add for Eureka client details
+    com.netflix.discovery: DEBUG  # Add for Eureka discovery details
