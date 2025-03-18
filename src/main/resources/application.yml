@@ -1,49 +1,47 @@
+# server:
+#   port: 9999
+# spring:
+#   application:
+#     name: api-gateway
+#   cloud:
+#     gateway:
+#       discovery:
+#         locator:
+#           enabled: true
+#           lower-case-service-id: true
+#       routes:
+#         - id: admin-service
+#           uri: lb://admin-service
+#           predicates:
+#             - Path=/api/auth/**
+#         - id: timetable-service
+#           uri: lb://timetable-service
+#           predicates:
+#             - Path=/api/timetable-service/**
 #
-#server:
-#  port: 9999
-#spring:
-#  application:
-#    name: api-gateway
-#  cloud:
-#    gateway:
-#      discovery:
-#        locator:
-#          enabled: true # Enables Eureka-based routing
-#          lower-case-service-id: true
-#      routes:
-#        - id: admin-service
-#          uri: lb://admin-service # Load-balanced URI via Eureka
-#          predicates:
-#            - Path=/api/auth/**
-#        - id: timetable-service
-#          uri: lb://timetable-service
-#          predicates:
-#            - Path=/api/timetable-service/**
-
-#      globalcors:
-#        cors-configurations:
-#          '[/**]':
-#            allowedOrigins: "http://localhost:4200"
-#            allowedMethods:
-#              - GET
-#              - POST
-#              - PUT
-#              - DELETE
-#              - OPTIONS
-#            allowedHeaders: "*"
-#            allowCredentials: true
-#            maxAge: 3600
-#eureka:
-#  client:
-#    service-url:
-#      defaultZone: http://localhost:8761/eureka/
-#  instance:
-#    leaseRenewalIntervalInSeconds: 30  # Heartbeat interval (default)
-#    leaseExpirationDurationInSeconds: 90  # Time before Eureka considers the instance expired (default)
-
-#jwt:
-#  secret: X7K9p2mQ8vL5rT3yZn6bQeF4uA1wJ9kLmN5oP6sR7tU8vW9xY0z1aB2c3d4E5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6A7B8C9D
-
+#       globalcors:
+#         cors-configurations:
+#           '[/**]':
+#             allowedOrigins: "http://localhost:4200"
+#             allowedMethods:
+#               - GET
+#               - POST
+#               - PUT
+#               - DELETE
+#               - OPTIONS
+#             allowedHeaders: "*"
+#             allowCredentials: true
+#             maxAge: 3600
+# eureka:
+#   client:
+#     service-url:
+#       defaultZone: http://localhost:8761/eureka/
+#   instance:
+#     leaseRenewalIntervalInSeconds: 30  # Heartbeat interval (default)
+#     leaseExpirationDurationInSeconds: 90  # Time before Eureka considers the instance expired (default)
+#
+# jwt:
+#   secret: X7K9p2mQ8vL5rT3yZn6bQeF4uA1wJ9kLmN5oP6sR7tU8vW9xY0z1aB2c3d4E5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6A7B8C9D
 
 server:
   port: 9999
@@ -54,7 +52,7 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: false  # Disable dynamic route creation from Eureka
+          enabled: false
       routes:
         - id: admin-service
           uri: lb://ADMIN-SERVICE
@@ -71,7 +69,9 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins: "http://localhost:4200"
+            allowedOrigins:
+              - "http://localhost:4200"
+              - "http://frontend.time4class.com:30080"
             allowedMethods:
               - GET
               - POST
@@ -84,12 +84,12 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://10.200.1.203:8761/eureka/  # Use Eureka pod IP instead of hostname
+      defaultZone: http://10.200.1.203:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
-    registry-fetch-interval-seconds: 5  # Fetch registry more frequently
+    registry-fetch-interval-seconds: 5
   instance:
-    prefer-ip-address: true  # Ensure Gateway registers its IP too
+    prefer-ip-address: true
     leaseRenewalIntervalInSeconds: 30
     leaseExpirationDurationInSeconds: 90
 jwt:

@@ -102,7 +102,7 @@ public class JwtAuthenticationFilter implements GatewayFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
 
-        // Skip authentication for login and register endpoints
+
         String path = request.getURI().getPath();
         if (path.contains("/api/auth/login") || path.contains("/api/auth/register")) {
             return chain.filter(exchange);
