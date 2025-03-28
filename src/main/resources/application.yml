@@ -55,7 +55,6 @@
 #     tn.esprit.apigateway: DEBUG
 
 
-
 server:
   port: 9999
 spring:
@@ -67,12 +66,17 @@ spring:
         locator:
           enabled: false
       routes:
-        - id: admin-service
+        - id: admin-service-auth
           uri: lb://ADMIN-SERVICE
           predicates:
-            - Path=/api/auth/**,/api/admin/**
+            - Path=/api/auth/**
+          # No StripPrefix here, so /api/auth/login stays intact
+        - id: admin-service-admin
+          uri: lb://ADMIN-SERVICE
+          predicates:
+            - Path=/api/admin/**
           filters:
-            - StripPrefix=1
+            - StripPrefix=1  # Strip /api for admin endpoints
         - id: timetable-service
           uri: lb://TIMETABLE-SERVICE
           predicates:
@@ -116,4 +120,3 @@ logging:
     org.springframework.http: TRACE
     org.springframework.cloud.netflix.eureka: DEBUG
     com.netflix.discovery: DEBUG
-
