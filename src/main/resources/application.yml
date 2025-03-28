@@ -10,15 +10,23 @@
 #           enabled: true
 #           lower-case-service-id: true
 #       routes:
-#         - id: admin-service
+#         - id: admin-service-auth
 #           uri: lb://admin-service
 #           predicates:
 #             - Path=/api/auth/**
+#           filters:
+#             - JwtAuthenticationFilter  # No "name:" prefix needed
+#         - id: admin-service-admin
+#           uri: lb://admin-service
+#           predicates:
+#             - Path=/api/admin/**
+#           filters:
+#             - JwtAuthenticationFilter
+#             - StripPrefix=1          # Keep this as it was
 #         - id: timetable-service
 #           uri: lb://timetable-service
 #           predicates:
 #             - Path=/api/timetable-service/**
-#
 #       globalcors:
 #         cors-configurations:
 #           '[/**]':
@@ -37,11 +45,16 @@
 #     service-url:
 #       defaultZone: http://localhost:8761/eureka/
 #   instance:
-#     leaseRenewalIntervalInSeconds: 30  # Heartbeat interval (default)
-#     leaseExpirationDurationInSeconds: 90  # Time before Eureka considers the instance expired (default)
-#
+#     leaseRenewalIntervalInSeconds: 30
+#     leaseExpirationDurationInSeconds: 90
 # jwt:
 #   secret: X7K9p2mQ8vL5rT3yZn6bQeF4uA1wJ9kLmN5oP6sR7tU8vW9xY0z1aB2c3d4E5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6A7B8C9D
+# logging:
+#   level:
+#     org.springframework.cloud.gateway: DEBUG
+#     tn.esprit.apigateway: DEBUG
+
+
 
 server:
   port: 9999
@@ -103,3 +116,4 @@ logging:
     org.springframework.http: TRACE
     org.springframework.cloud.netflix.eureka: DEBUG
     com.netflix.discovery: DEBUG
+
