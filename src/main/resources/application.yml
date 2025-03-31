@@ -89,7 +89,7 @@ spring:
             allowedOrigins:
               - "http://localhost:4200"
               - "http://frontend.time4class.com:30080"
-              - "http://192.168.157.131"
+              - "http://192.168.157.131:30001"
             allowedMethods:
               - GET
               - POST
