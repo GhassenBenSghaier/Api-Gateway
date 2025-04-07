@@ -27,6 +27,13 @@
 #           uri: lb://timetable-service
 #           predicates:
 #             - Path=/api/timetable-service/**
+#         - id: calendar-service  # New route for calendar-service
+#           uri: lb://calendar-service
+#           predicates:
+#             - Path=/api/calendar/**
+#           filters:
+#             - JwtAuthenticationFilter  # Secure the endpoint
+#             - StripPrefix=1  # Remove "/api" from the path
 #       globalcors:
 #         cors-configurations:
 #           '[/**]':
@@ -55,8 +62,13 @@
 #     tn.esprit.apigateway: DEBUG
 
 
+
+
+# server configuration
 server:
   port: 9999
+
+# Spring application configuration
 spring:
   application:
     name: api-gateway
@@ -83,6 +95,12 @@ spring:
             - Path=/api/timetable-service/**
           filters:
             - StripPrefix=2
+        - id: calendar-service
+          uri: lb://CALENDAR-SERVICE
+          predicates:
+              - Path=/api/calendar-service/**
+          filters:
+              - StripPrefix=2
       globalcors:
         cors-configurations:
           '[/**]':
@@ -99,6 +117,8 @@ spring:
             allowedHeaders: "*"
             allowCredentials: true
             maxAge: 3600
+
+# Eureka client configuration
 eureka:
   client:
     service-url:
@@ -110,8 +130,12 @@ eureka:
     prefer-ip-address: true
     leaseRenewalIntervalInSeconds: 30
     leaseExpirationDurationInSeconds: 90
+
+# JWT secret key
 jwt:
   secret: X7K9p2mQ8vL5rT3yZn6bQeF4uA1wJ9kLmN5oP6sR7tU8vW9xY0z1aB2c3d4E5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6A7B8C9D
+
+# Logging configuration
 logging:
   level:
     org.springframework.cloud.gateway: TRACE
@@ -121,3 +145,4 @@ logging:
     org.springframework.http: TRACE
     org.springframework.cloud.netflix.eureka: DEBUG
     com.netflix.discovery: DEBUG
+
