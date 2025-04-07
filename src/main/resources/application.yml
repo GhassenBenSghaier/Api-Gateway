@@ -94,7 +94,7 @@ spring:
           predicates:
             - Path=/api/timetable-service/**
           filters:
-            - StripPrefix=2
+            - StripPrefix=1
         - id: calendar-service
           uri: lb://CALENDAR-SERVICE
           predicates:
