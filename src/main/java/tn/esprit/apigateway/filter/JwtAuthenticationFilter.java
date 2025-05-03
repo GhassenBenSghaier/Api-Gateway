@@ -2,6 +2,8 @@ package tn.esprit.apigateway.filter;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -19,6 +21,8 @@ import java.util.Base64;
 @Component
 public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAuthenticationFilter.Config> {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+
     @Value("${jwt.secret}")
     private String secretKeyBase64;
 
@@ -31,11 +35,17 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
     @PostConstruct
     public void init() {
         if (secretKeyBase64 == null) {
+            logger.error("JWT secret key is not configured.");
             throw new IllegalStateException("JWT secret key is not configured.");
         }
-        byte[] keyBytes = Base64.getDecoder().decode(secretKeyBase64);
-        this.secretKey = new SecretKeySpec(keyBytes, "HmacSHA512");
-        System.out.println("Gateway Filter - Initialized with secret key");
+        try {
+            byte[] keyBytes = Base64.getDecoder().decode(secretKeyBase64);
+            this.secretKey = new SecretKeySpec(keyBytes, "HmacSHA512");
+            logger.info("Initialized JWT filter with secret key");
+        } catch (IllegalArgumentException e) {
+            logger.error("Failed to decode JWT secret key: {}", e.getMessage());
+            throw new IllegalStateException("Invalid JWT secret key", e);
+        }
     }
 
     @Override
@@ -44,25 +54,21 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
             ServerHttpRequest request = exchange.getRequest();
             String path = request.getURI().getPath();
             String method = request.getMethod().toString();
-            System.out.println("Gateway Filter - Processing request - Method: " + method + ", Path: " + path);
+            logger.debug("Processing request - Method: {}, Path: {}", method, path);
 
-            // Handle CORS preflight
             if ("OPTIONS".equals(method)) {
-                System.out.println("Gateway Filter - Handling OPTIONS request");
                 ServerHttpResponse response = exchange.getResponse();
                 response.setStatusCode(HttpStatus.OK);
-                // Remove manual CORS headers; rely on globalcors
                 return response.setComplete();
             }
 
             if (path.contains("/api/auth/login") || path.contains("/api/auth/register")) {
-                System.out.println("Gateway Filter - Bypassing JWT check for: " + path);
-                // Remove manual CORS headers; rely on globalcors
+                logger.debug("Bypassing JWT check for: {}", path);
                 return chain.filter(exchange);
             }
 
             String authHeader = request.getHeaders().getFirst("Authorization");
-            System.out.println("Gateway Filter - Authorization Header: " + authHeader);
+            logger.debug("Authorization Header: {}", authHeader);
 
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 String token = authHeader.substring(7);
@@ -72,25 +78,25 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
                             .build()
                             .parseClaimsJws(token)
                             .getBody();
-                    exchange.getRequest().mutate()
+                    logger.debug("Token validated, user: {}", claims.getSubject());
+                    ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
                             .header("X-Authenticated-User", claims.getSubject())
+                            .header("Authorization", authHeader) // Explicitly preserve Authorization
                             .build();
-                    System.out.println("Gateway Filter - Token validated, user: " + claims.getSubject());
-                    return chain.filter(exchange);
+                    return chain.filter(exchange.mutate().request(modifiedRequest).build());
                 } catch (Exception e) {
-                    System.out.println("Gateway Filter - JWT Validation Failed: " + e.getMessage());
+                    logger.error("JWT validation failed: {}", e.getMessage(), e);
                     exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                     return exchange.getResponse().setComplete();
                 }
             }
 
-            System.out.println("Gateway Filter - No valid token found, rejecting with 401");
+            logger.warn("No valid token found, rejecting with 401");
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         };
     }
 
     public static class Config {
-        // Add configuration properties if needed
     }
 }

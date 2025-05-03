@@ -7,33 +7,36 @@
 #     gateway:
 #       discovery:
 #         locator:
-#           enabled: true
-#           lower-case-service-id: true
+#           enabled: false
+#           lower-case-service-id: false
 #       routes:
 #         - id: admin-service-auth
-#           uri: lb://admin-service
+#           uri: lb://ADMIN-SERVICE
 #           predicates:
 #             - Path=/api/auth/**
 #           filters:
-#             - JwtAuthenticationFilter  # No "name:" prefix needed
+#             - JwtAuthenticationFilter
 #         - id: admin-service-admin
-#           uri: lb://admin-service
+#           uri: lb://ADMIN-SERVICE
 #           predicates:
 #             - Path=/api/admin/**
 #           filters:
 #             - JwtAuthenticationFilter
-#             - StripPrefix=1          # Keep this as it was
-#         - id: timetable-service
-#           uri: lb://timetable-service
+#             - StripPrefix=1
+#         - id: new-timetable-service
+#           uri: http://localhost:8083
 #           predicates:
-#             - Path=/api/timetable-service/**
-#         - id: calendar-service  # New route for calendar-service
-#           uri: lb://calendar-service
+#             - Path=/api/new-timetable-service/**
+#           filters:
+#             - JwtAuthenticationFilter
+#             - StripPrefix=2
+#         - id: calendar-service
+#           uri: lb://CALENDAR-SERVICE
 #           predicates:
 #             - Path=/api/calendar/**
 #           filters:
-#             - JwtAuthenticationFilter  # Secure the endpoint
-#             - StripPrefix=1  # Remove "/api" from the path
+#             - JwtAuthenticationFilter
+#             - StripPrefix=1
 #       globalcors:
 #         cors-configurations:
 #           '[/**]':
@@ -51,24 +54,126 @@
 #   client:
 #     service-url:
 #       defaultZone: http://localhost:8761/eureka/
+#     fetch-registry: true
+#     register-with-eureka: true
+#     registry-fetch-interval-seconds: 5
 #   instance:
-#     leaseRenewalIntervalInSeconds: 30
-#     leaseExpirationDurationInSeconds: 90
+#     leaseRenewalIntervalInSeconds: 10
+#     leaseExpirationDurationInSeconds: 30
+#     prefer-ip-address: false
+#     hostname: localhost
+#     instance-id: localhost:api-gateway:9999
+#     metadata-map:
+#       hostname: localhost
+# management:
+#   endpoints:
+#     web:
+#       exposure:
+#         include: health,info,gateway
 # jwt:
 #   secret: X7K9p2mQ8vL5rT3yZn6bQeF4uA1wJ9kLmN5oP6sR7tU8vW9xY0z1aB2c3d4E5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6A7B8C9D
 # logging:
 #   level:
-#     org.springframework.cloud.gateway: DEBUG
-#     tn.esprit.apigateway: DEBUG
-
-
+#     root: INFO
+#     org.springframework.cloud.gateway: TRACE
+#     org.springframework.cloud.loadbalancer: TRACE
+#     reactor.netty: TRACE
+#     com.netflix.discovery: TRACE
+#     com.netflix.eureka: TRACE
+#     tn.esprit.apigateway: TRACE
+#     tn.esprit.apigateway.filter: TRACE
+#     tn.esprit.apigateway.handler: TRACE # Add this
+#     org.springframework.web: TRACE
+#     org.springframework.http: TRACE
+#     org.springframework.security: TRACE
 
 
 # server configuration
+# server:
+#   port: 9999
+
+# Spring application configuration
+# spring:
+#   application:
+#     name: api-gateway
+#   cloud:
+#     gateway:
+#       discovery:
+#         locator:
+#           enabled: false
+#       routes:
+#         - id: admin-service-auth
+#           uri: lb://ADMIN-SERVICE
+#           predicates:
+#             - Path=/api/auth/**
+#           # No StripPrefix here, so /api/auth/login stays intact
+#         - id: admin-service-admin
+#           uri: lb://ADMIN-SERVICE
+#           predicates:
+#             - Path=/api/admin/**
+#           filters:
+#             - StripPrefix=1  # Strip /api for admin endpoints
+#         - id: timetable-service
+#           uri: lb://TIMETABLE-SERVICE
+#           predicates:
+#             - Path=/api/timetable-service/**
+#           filters:
+#             - StripPrefix=1
+#         - id: calendar-service
+#           uri: lb://CALENDAR-SERVICE
+#           predicates:
+#             - Path=/api/calendar-service/**
+#           filters:
+#             - StripPrefix=2
+#       globalcors:
+#         cors-configurations:
+#           '[/**]':
+#             allowedOrigins:
+#               - "http://localhost:4200"
+#               - "http://frontend.time4class.com:30080"
+#               - "http://192.168.157.131:30001"
+#             allowedMethods:
+#               - GET
+#               - POST
+#               - PUT
+#               - DELETE
+#               - OPTIONS
+#             allowedHeaders: "*"
+#             allowCredentials: true
+#             maxAge: 3600
+
+# Eureka client configuration
+# eureka:
+#   client:
+#     service-url:
+#       defaultZone: http://10.200.1.203:8761/eureka/
+#     register-with-eureka: true
+#     fetch-registry: true
+#     registry-fetch-interval-seconds: 5
+#   instance:
+#     prefer-ip-address: true
+#     leaseRenewalIntervalInSeconds: 30
+#     leaseExpirationDurationInSeconds: 90
+
+# JWT secret key
+# jwt:
+#   secret: X7K9p2mQ8vL5rT3yZn6bQeF4uA1wJ9kLmN5oP6sR7tU8vW9xY0z1aB2c3d4E5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6A7B8C9D
+
+# Logging configuration
+# logging:
+#   level:
+#     org.springframework.cloud.gateway: TRACE
+#     org.springframework.cloud.loadbalancer: TRACE
+#     reactor.netty: TRACE
+#     org.springframework.web: TRACE
+#     org.springframework.http: TRACE
+#     org.springframework.cloud.netflix.eureka: DEBUG
+#     com.netflix.discovery: DEBUG
+
+
 server:
   port: 9999
 
-# Spring application configuration
 spring:
   application:
     name: api-gateway
@@ -82,32 +187,35 @@ spring:
           uri: lb://ADMIN-SERVICE
           predicates:
             - Path=/api/auth/**
-          # No StripPrefix here, so /api/auth/login stays intact
+          filters:
+            - JwtAuthenticationFilter
         - id: admin-service-admin
           uri: lb://ADMIN-SERVICE
           predicates:
             - Path=/api/admin/**
           filters:
-            - StripPrefix=1  # Strip /api for admin endpoints
-        - id: timetable-service
-          uri: lb://TIMETABLE-SERVICE
-          predicates:
-            - Path=/api/timetable-service/**
-          filters:
+            - JwtAuthenticationFilter
             - StripPrefix=1
         - id: calendar-service
           uri: lb://CALENDAR-SERVICE
           predicates:
-              - Path=/api/calendar-service/**
+            - Path=/api/calendar/**
           filters:
-              - StripPrefix=2
+            - JwtAuthenticationFilter
+            - StripPrefix=1
+        - id: new-timetable-service
+          uri: lb://NEW-TIMETABLE-SERVICE
+          predicates:
+            - Path=/api/new-timetable/**
+          filters:
+            - JwtAuthenticationFilter
+            - StripPrefix=1
       globalcors:
         cors-configurations:
           '[/**]':
             allowedOrigins:
-              - "http://localhost:4200"
+              - "http://192.168.157.131:30000"
               - "http://frontend.time4class.com:30080"
-              - "http://192.168.157.131:30001"
             allowedMethods:
               - GET
               - POST
@@ -118,31 +226,37 @@ spring:
             allowCredentials: true
             maxAge: 3600
 
-# Eureka client configuration
 eureka:
   client:
     service-url:
-      defaultZone: http://10.200.1.203:8761/eureka/
+      defaultZone: http://eureka-server:8761/eureka/
     register-with-eureka: true
     fetch-registry: true
     registry-fetch-interval-seconds: 5
   instance:
     prefer-ip-address: true
-    leaseRenewalIntervalInSeconds: 30
-    leaseExpirationDurationInSeconds: 90
+    leaseRenewalIntervalInSeconds: 10
+    leaseExpirationDurationInSeconds: 30
 
-# JWT secret key
 jwt:
   secret: X7K9p2mQ8vL5rT3yZn6bQeF4uA1wJ9kLmN5oP6sR7tU8vW9xY0z1aB2c3d4E5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6A7B8C9D
 
-# Logging configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+
 logging:
   level:
-    org.springframework.cloud.gateway: TRACE
-    org.springframework.cloud.loadbalancer: TRACE
-    reactor.netty: TRACE
-    org.springframework.web: TRACE
-    org.springframework.http: TRACE
-    org.springframework.cloud.netflix.eureka: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.loadbalancer: DEBUG
+    reactor.netty: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.http: DEBUG
+    org.springframework.security: DEBUG
     com.netflix.discovery: DEBUG
-
+    com.netflix.eureka: DEBUG
+    tn.esprit.apigateway: DEBUG
+    tn.esprit.apigateway.filter: DEBUG
+    tn.esprit.apigateway.handler: DEBUG
