@@ -202,7 +202,7 @@ spring:
             - Path=/api/calendar/**
           filters:
             - JwtAuthenticationFilter
-            - StripPrefix=1
+            - StripPrefix=2
         - id: new-timetable-service
           uri: lb://NEW-TIMETABLE-SERVICE
           predicates:
