@@ -209,7 +209,7 @@ spring:
             - Path=/api/new-timetable-service/**
           filters:
             - JwtAuthenticationFilter
-            - StripPrefix=1
+            - StripPrefix=2
       globalcors:
         cors-configurations:
           '[/**]':
