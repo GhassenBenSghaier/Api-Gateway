@@ -204,7 +204,7 @@ spring:
             - JwtAuthenticationFilter
             - StripPrefix=2
         - id: new-timetable-service
-          uri: lb://NEW-TIMETABLE-SERVICE
+          uri: http://localhost:8083
           predicates:
             - Path=/api/new-timetable-service/**
           filters:
