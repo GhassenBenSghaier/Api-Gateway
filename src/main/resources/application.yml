@@ -206,7 +206,7 @@ spring:
         - id: new-timetable-service
           uri: lb://NEW-TIMETABLE-SERVICE
           predicates:
-            - Path=/api/new-timetable/**
+            - Path=/api/new-timetable-service/**
           filters:
             - JwtAuthenticationFilter
             - StripPrefix=1
