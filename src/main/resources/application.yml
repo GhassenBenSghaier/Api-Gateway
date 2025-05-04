@@ -215,6 +215,7 @@ spring:
           '[/**]':
             allowedOrigins:
               - "http://192.168.157.131:30000"
+              - "http://192.168.157.131:30001"
               - "http://frontend.time4class.com:30080"
             allowedMethods:
               - GET
