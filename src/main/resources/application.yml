@@ -224,7 +224,9 @@ spring:
               - DELETE
               - OPTIONS
             allowedHeaders: "*"
+            exposedHeaders: "Access-Control-Allow-Origin,Access-Control-Allow-Credentials"
             allowCredentials: true
+
             maxAge: 3600
 
 eureka:
